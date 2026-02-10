@@ -100,7 +100,7 @@ define('SHOWDOC_PUSH_URL', 'your_showdoc_push_url');  // 可选
 
 Chrome / Edge / Firefox / Safari 最新版，iOS Safari / Android Chrome。
 
-## License
+## 许可证
 
 MIT
 
