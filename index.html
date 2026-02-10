@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沐辰网络 - amuchen.com 网站建设中</title>
+    <meta name="description" content="沐辰网络 amuchen.com 网站正在建设中，敬请期待。">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>A</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            background: #06050e;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+            cursor: default;
+        }
+
+        /* 鼠标跟随光晕 */
+        .cursor-glow {
+            position: fixed;
+            width: 350px; height: 350px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(167,139,250,0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 2;
+            transform: translate(-50%, -50%);
+            transition: left 0.3s ease-out, top 0.3s ease-out;
+            will-change: left, top;
+        }
+
+        canvas#starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
+
+        /* 背景光晕 */
+        .glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .glow-1 {
+            width: 600px; height: 600px;
+            background: rgba(167, 139, 250, 0.08);
+            top: -200px; left: -150px;
+            animation: float 8s ease-in-out infinite;
+        }
+        .glow-2 {
+            width: 500px; height: 500px;
+            background: rgba(96, 165, 250, 0.06);
+            bottom: -150px; right: -150px;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        /* ===== 主布局 ===== */
+        .main-layout {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* 左侧品牌区 */
+        .brand-side {
+            flex: 0 0 44%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 左侧装饰线条 */
+        .brand-side::before {
+            content: '';
+            position: absolute;
+            top: 15%; right: 0;
+            width: 1px; height: 70%;
+            background: linear-gradient(180deg, transparent, rgba(167,139,250,0.12), rgba(96,165,250,0.12), transparent);
+        }
+
+        .brand-deco {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.04;
+        }
+        .brand-deco-1 {
+            width: 200px; height: 200px;
+            border: 1px solid #a78bfa;
+            border-radius: 50%;
+            top: 10%; left: -60px;
+            animation: spinSlow 40s linear infinite;
+        }
+        .brand-deco-2 {
+            width: 140px; height: 140px;
+            border: 1px solid #60a5fa;
+            top: 60%; right: 30px;
+            transform: rotate(45deg);
+            animation: spinSlow 30s linear infinite reverse;
+        }
+        .brand-deco-3 {
+            width: 80px; height: 80px;
+            border: 1px solid #f472b6;
+            border-radius: 50%;
+            bottom: 12%; left: 20%;
+            animation: floatSmall 6s ease-in-out infinite;
+        }
+
+        .logo-icon {
+            width: 88px; height: 88px;
+            position: relative;
+            margin-bottom: 2.2rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #a78bfa, #60a5fa, #f472b6);
+            transform: rotate(45deg);
+            animation: rotateIcon 20s linear infinite;
+            box-shadow: 0 0 40px rgba(167,139,250,0.2), 0 0 80px rgba(96,165,250,0.1);
+        }
+        .logo-icon::after {
+            content: 'A';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #fff;
+            z-index: 1;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            margin-bottom: 0.4rem;
+            background: linear-gradient(90deg, #c4b5fd, #93c5fd, #f9a8d4, #c4b5fd);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite, fadeInUp 1s ease-out;
+        }
+
+        .logo-cn {
+            font-size: 1.1rem;
+            color: #7c8db5;
+            letter-spacing: 10px;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+            animation: fadeInUp 1s ease-out 0.15s both;
+        }
+
+        .tagline {
+            font-size: 0.72rem;
+            color: #3b4a6b;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 2.8rem;
+            animation: fadeInUp 1s ease-out 0.25s both;
+        }
+
+        .brand-social {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            animation: fadeInUp 1s ease-out 0.35s both;
+        }
+        .brand-qrcode {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 6px;
+            background: rgba(255,255,255,0.03);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .brand-qrcode:hover {
+            border-color: rgba(167,139,250,0.3);
+            box-shadow: 0 4px 20px rgba(167,139,250,0.1);
+            transform: translateY(-2px);
+        }
+        .brand-qrcode img {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .brand-qrcode-label {
+            font-size: 0.62rem;
+            color: #3b4a6b;
+            letter-spacing: 2px;
+        }
+
+        /* 右侧内容区 */
+        .content-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 4.5rem 4rem 5rem;
+            overflow-y: auto;
+        }
+
+        .section-label {
+            font-size: 0.62rem;
+            color: #3b4a6b;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .section-label::before {
+            content: '';
+            width: 12px; height: 1px;
+            background: linear-gradient(90deg, #a78bfa, transparent);
+        }
+
+        .status {
+            font-size: 1.9rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            color: #e2e8f0;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+        .status .cursor {
+            display: inline-block;
+            width: 2px; height: 1.4rem;
+            background: #a78bfa;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: cursorBlink 1s step-end infinite;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: #4b5e80;
+            line-height: 1.9;
+            margin-bottom: 2.8rem;
+            max-width: 440px;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        /* 倒计时 */
+        .countdown {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 2.8rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        .countdown-item {
+            text-align: center;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 1rem 1.2rem 0.8rem;
+            min-width: 72px;
+            transition: border-color 0.3s;
+        }
+        .countdown-item:hover {
+            border-color: rgba(167,139,250,0.15);
+        }
+        .countdown-value {
+            display: block;
+            font-size: 2.4rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            background: linear-gradient(180deg, #e2e8f0, #4b5e80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.15;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .countdown-value.flip {
+            animation: flipNum 0.4s ease-out;
+        }
+        .countdown-label {
+            font-size: 0.58rem;
+            color: #3b4a6b;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 0.35rem;
+        }
+        .countdown-sep {
+            font-size: 1.6rem;
+            color: #1a2236;
+            align-self: center;
+            padding-bottom: 0.8rem;
+        }
+
+        /* 进度条 */
+        .progress-wrapper {
+            margin-bottom: 2.8rem;
+            max-width: 420px;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .progress-label {
+            font-size: 0.68rem;
+            color: #3b4a6b;
+            letter-spacing: 1px;
+        }
+        .progress-percent {
+            font-size: 0.68rem;
+            color: #a78bfa;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-bar-inner {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            border-radius: 2px;
+            position: relative;
+            animation: progressGrow 2s cubic-bezier(0.4, 0, 0.2, 1) 0.8s forwards;
+        }
+        .progress-bar-inner::after {
+            content: '';
+            position: absolute;
+            right: -2px; top: -2px;
+            width: 7px; height: 7px;
+            background: #60a5fa;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #60a5fa, 0 0 24px rgba(96,165,250,0.3);
+        }
+
+        /* 订阅 */
+        .subscribe {
+            margin-bottom: 2.8rem;
+            max-width: 420px;
+            animation: fadeInUp 1s ease-out 0.7s both;
+        }
+        .subscribe-title {
+            font-size: 0.85rem;
+            color: #7c8db5;
+            margin-bottom: 0.7rem;
+            font-weight: 400;
+        }
+        .subscribe-form {
+            display: flex;
+            flex-wrap: wrap;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .subscribe-form:focus-within {
+            border-color: rgba(167,139,250,0.3);
+            box-shadow: 0 0 30px rgba(167,139,250,0.06);
+        }
+        .subscribe-input {
+            flex: 1;
+            padding: 0.85rem 1.1rem;
+            background: rgba(255,255,255,0.02);
+            border: none;
+            color: #e2e8f0;
+            font-size: 0.82rem;
+            outline: none;
+            font-family: inherit;
+        }
+        .subscribe-input::placeholder { color: #252d40; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+        .subscribe-btn {
+            width: 100%;
+            padding: 0.85rem 2rem;
+            background: linear-gradient(135deg, #a78bfa, #7c3aed);
+            border: none;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            letter-spacing: 1.5px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+        .subscribe-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            filter: grayscale(0.3);
+        }
+        .subscribe-btn:not(:disabled):hover {
+            background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+            box-shadow: 0 6px 28px rgba(124,58,237,0.35);
+            transform: translateY(-1px);
+        }
+        .subscribe-btn:not(:disabled):active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 12px rgba(124,58,237,0.25);
+        }
+        .subscribe-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        .subscribe-btn:not(:disabled):hover::before { transform: translateX(100%); }
+        .subscribe-btn.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            opacity: 1;
+            filter: none;
+            box-shadow: 0 4px 20px rgba(16,185,129,0.3);
+        }
+        .slider-captcha {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .slider-track {
+            position: relative;
+            height: 36px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 18px;
+            border: 1px solid rgba(167,139,250,0.12);
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .slider-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(167,139,250,0.15), rgba(167,139,250,0.25));
+            border-radius: 18px;
+            transition: none;
+        }
+        .slider-thumb {
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #a78bfa, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            transition: box-shadow 0.3s;
+            z-index: 2;
+            touch-action: none;
+        }
+        .slider-thumb:active { cursor: grabbing; }
+        .slider-thumb svg { color: #fff; pointer-events: none; }
+        .slider-thumb:hover {
+            box-shadow: 0 0 16px rgba(167,139,250,0.5);
+        }
+        .slider-hint {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            color: rgba(167,139,250,0.5);
+            letter-spacing: 2px;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .slider-captcha.verified .slider-track {
+            border-color: rgba(16,185,129,0.3);
+        }
+        .slider-captcha.verified .slider-fill {
+            background: linear-gradient(90deg, rgba(16,185,129,0.15), rgba(16,185,129,0.25));
+        }
+        .slider-captcha.verified .slider-thumb {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .slider-captcha.verified .slider-hint {
+            color: rgba(16,185,129,0.8);
+        }
+        .subscribe-hint {
+            font-size: 0.65rem;
+            color: #1a2236;
+            margin-top: 0.5rem;
+        }
+        /* 订阅成功动画 */
+        .subscribe-success-msg {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1rem;
+            background: rgba(16,185,129,0.08);
+            border: 1px solid rgba(16,185,129,0.15);
+            border-radius: 10px;
+            margin-top: 0.6rem;
+            font-size: 0.78rem;
+            color: #10b981;
+            animation: slideIn 0.4s ease-out;
+        }
+        .subscribe-success-msg.show { display: flex; }
+        .subscribe-success-msg svg {
+            flex-shrink: 0;
+        }
+
+        /* 底部信息 */
+        .footer-info {
+            font-size: 0.7rem;
+            color: #1a2236;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+        .footer-info a {
+            color: #3b4a6b;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(59,74,107,0.2);
+            padding-bottom: 1px;
+            transition: all 0.3s;
+        }
+        .footer-info a:hover {
+            color: #a78bfa;
+            border-bottom-color: #a78bfa;
+        }
+
+        /* ===== 动画 ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer { to { background-position: 300% center; } }
+        @keyframes progressGrow { to { width: 35%; } }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25px); }
+        }
+        @keyframes floatSmall {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-12px) scale(1.05); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%,-50%) scale(1.1); }
+        }
+        @keyframes rotateIcon { to { transform: rotate(405deg); } }
+        @keyframes spinSlow { to { transform: rotate(360deg); } }
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        @keyframes flipNum {
+            0% { transform: translateY(-8px); opacity: 0.3; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 860px) {
+            .main-layout { flex-direction: column; min-height: auto; }
+            .brand-side {
+                flex: none;
+                padding: 3rem 2rem 2.2rem;
+            }
+            .brand-side::before { display: none; }
+            .brand-deco { display: none; }
+            .content-side {
+                padding: 2.2rem 2rem 3rem;
+                align-items: center;
+                text-align: center;
+            }
+            .section-label { justify-content: center; }
+            .logo { font-size: 2.2rem; letter-spacing: 5px; }
+            .logo-cn { letter-spacing: 6px; font-size: 1rem; }
+            .tagline { margin-bottom: 1.8rem; }
+            .logo-icon { width: 70px; height: 70px; margin-bottom: 1.8rem; }
+            .logo-icon::after { font-size: 1.7rem; }
+            .status { font-size: 1.4rem; }
+            .description { text-align: center; max-width: 100%; }
+            .countdown { gap: 0.5rem; justify-content: center; }
+            .countdown-item { min-width: 60px; padding: 0.8rem 0.8rem 0.6rem; }
+            .countdown-value { font-size: 1.8rem; }
+            .progress-wrapper { max-width: 100%; width: 100%; }
+            .subscribe { max-width: 100%; width: 100%; }
+            .subscribe-form { flex-direction: column; }
+            .subscribe-btn { padding: 0.8rem; }
+            .cursor-glow { display: none; }
+        }
+
+        @media (max-width: 380px) {
+            .brand-side { padding: 2rem 1.2rem 1.5rem; }
+            .content-side { padding: 1.5rem 1.2rem 2rem; }
+            .logo { font-size: 1.8rem; letter-spacing: 3px; }
+            .countdown-value { font-size: 1.5rem; }
+            .countdown-item { min-width: 52px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <canvas id="starfield"></canvas>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <div class="main-layout">
+        <!-- 左侧品牌区 -->
+        <div class="brand-side">
+            <div class="brand-deco brand-deco-1"></div>
+            <div class="brand-deco brand-deco-2"></div>
+            <div class="brand-deco brand-deco-3"></div>
+
+            <div class="logo-icon"></div>
+            <div class="logo">AMUCHEN</div>
+            <p class="logo-cn">沐辰网络</p>
+            <p class="tagline">Coming Soon</p>
+            <div class="brand-social">
+                <div class="brand-qrcode">
+                    <img src="qrcode_for_gh_23b8f378ae75_258.jpg" alt="微信公众号">
+                </div>
+                <span class="brand-qrcode-label">微信公众号</span>
+            </div>
+        </div>
+
+        <!-- 右侧内容区 -->
+        <div class="content-side">
+            <p class="section-label" style="animation:fadeInUp 1s ease-out .2s both">状态</p>
+            <p class="status">网站建设中<span class="cursor"></span></p>
+            <p class="description">我们正在精心打造全新的网站体验，一些令人期待的内容即将呈现，敬请关注。</p>
+
+            <p class="section-label" style="animation:fadeInUp 1s ease-out .45s both">预计上线</p>
+            <div class="countdown">
+                <div class="countdown-item">
+                    <span class="countdown-value" id="days">00</span>
+                    <span class="countdown-label">天</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="hours">00</span>
+                    <span class="countdown-label">时</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="minutes">00</span>
+                    <span class="countdown-label">分</span>
+                </div>
+                <span class="countdown-sep">:</span>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="seconds">00</span>
+                    <span class="countdown-label">秒</span>
+                </div>
+            </div>
+
+            <div class="progress-wrapper">
+                <div class="progress-header">
+                    <span class="progress-label">建设进度</span>
+                    <span class="progress-percent">35%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-inner"></div>
+                </div>
+            </div>
+
+            <div class="subscribe">
+                <p class="subscribe-title">订阅上线通知</p>
+                <form class="subscribe-form" id="subscribeForm">
+                    <input type="email" class="subscribe-input" placeholder="输入您的邮箱地址" required>
+                    <div class="slider-captcha" id="sliderCaptcha">
+                        <div class="slider-track">
+                            <div class="slider-fill" id="sliderFill"></div>
+                            <div class="slider-thumb" id="sliderThumb">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                            </div>
+                            <span class="slider-hint" id="sliderHint">滑动验证</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="subscribe-btn">订阅</button>
+                </form>
+                <p class="subscribe-hint">仅在网站上线时通知您，不会发送垃圾邮件。</p>
+                <div class="subscribe-success-msg" id="successMsg">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    <span>订阅成功！我们会在网站上线时第一时间通知您。</span>
+                </div>
+            </div>
+
+            <p class="footer-info" id="footerInfo">沐辰网络 &middot; amuchen.com &middot; <a href="mailto:hi@amuchen.com">hi@amuchen.com</a></p>
+        </div>
+    </div>
+
+    <script>
+        // 星空 + 粒子连线
+        (function() {
+            const canvas = document.getElementById('starfield');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const COUNT = 100;
+            const CONNECT_DIST = 120;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            function create() {
+                particles = [];
+                for (let i = 0; i < COUNT; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 1.2 + 0.3,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3 - 0.08,
+                        opacity: Math.random() * 0.6 + 0.2,
+                        twinkle: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // 连线
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < CONNECT_DIST) {
+                            const alpha = (1 - dist / CONNECT_DIST) * 0.06;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(167,139,250,${alpha})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                // 粒子
+                particles.forEach(p => {
+                    p.twinkle += 0.015;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < -10) p.x = canvas.width + 10;
+                    if (p.x > canvas.width + 10) p.x = -10;
+                    if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+                    if (p.y > canvas.height + 10) p.y = -10;
+                    const op = p.opacity * (0.5 + 0.5 * Math.sin(p.twinkle));
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${op})`;
+                    ctx.fill();
+                });
+                requestAnimationFrame(draw);
+            }
+            window.addEventListener('resize', () => { resize(); create(); });
+            resize(); create(); draw();
+        })();
+
+        // 鼠标跟随光晕
+        (function() {
+            const glow = document.getElementById('cursorGlow');
+            if (!glow) return;
+            document.addEventListener('mousemove', e => {
+                glow.style.left = e.clientX + 'px';
+                glow.style.top = e.clientY + 'px';
+            });
+        })();
+
+        // 倒计时 + 翻转动画
+        (function() {
+            const launchDate = new Date();
+            launchDate.setDate(launchDate.getDate() + 30);
+            launchDate.setHours(0, 0, 0, 0);
+            const els = { d: document.getElementById('days'), h: document.getElementById('hours'), m: document.getElementById('minutes'), s: document.getElementById('seconds') };
+            let prev = { d: '', h: '', m: '', s: '' };
+
+            function flip(el, val) {
+                if (val !== prev[el]) {
+                    els[el].classList.remove('flip');
+                    void els[el].offsetWidth;
+                    els[el].classList.add('flip');
+                    prev[el] = val;
+                }
+                els[el].textContent = val;
+            }
+            function update() {
+                const diff = launchDate - new Date();
+                if (diff <= 0) return;
+                flip('d', String(Math.floor(diff / 864e5)).padStart(2, '0'));
+                flip('h', String(Math.floor((diff % 864e5) / 36e5)).padStart(2, '0'));
+                flip('m', String(Math.floor((diff % 36e5) / 6e4)).padStart(2, '0'));
+                flip('s', String(Math.floor((diff % 6e4) / 1e3)).padStart(2, '0'));
+            }
+            update();
+            setInterval(update, 1000);
+        })();
+
+        // 订阅 + 滑块验证码
+        (function() {
+            const form = document.getElementById('subscribeForm');
+            const msg = document.getElementById('successMsg');
+            const slider = document.getElementById('sliderCaptcha');
+            const thumb = document.getElementById('sliderThumb');
+            const fill = document.getElementById('sliderFill');
+            const hint = document.getElementById('sliderHint');
+            const btn = form.querySelector('button');
+            const STORAGE_KEY = 'amuchen_subscribers';
+            let verified = false;
+
+            // 滑块逻辑
+            const track = slider.querySelector('.slider-track');
+            let dragging = false, startX = 0, thumbLeft = 0;
+
+            function getMaxLeft() {
+                return track.offsetWidth - thumb.offsetWidth - 4;
+            }
+
+            function onStart(e) {
+                if (verified) return;
+                dragging = true;
+                startX = (e.touches ? e.touches[0].clientX : e.clientX);
+                thumbLeft = thumb.offsetLeft;
+                thumb.style.transition = 'none';
+                fill.style.transition = 'none';
+            }
+            function onMove(e) {
+                if (!dragging) return;
+                const x = (e.touches ? e.touches[0].clientX : e.clientX);
+                const diff = x - startX;
+                const maxLeft = getMaxLeft();
+                let newLeft = Math.min(Math.max(2, thumbLeft + diff), maxLeft);
+                thumb.style.left = newLeft + 'px';
+                fill.style.width = (newLeft + thumb.offsetWidth / 2) + 'px';
+                hint.style.opacity = Math.max(0, 1 - newLeft / (maxLeft * 0.4));
+            }
+            function onEnd() {
+                if (!dragging) return;
+                dragging = false;
+                const maxLeft = getMaxLeft();
+                const currentLeft = parseInt(thumb.style.left) || 2;
+
+                if (currentLeft >= maxLeft - 4) {
+                    // 验证通过
+                    verified = true;
+                    thumb.style.left = maxLeft + 'px';
+                    fill.style.width = '100%';
+                    slider.classList.add('verified');
+                    hint.textContent = '验证通过';
+                    hint.style.opacity = '1';
+                } else {
+                    // 回弹
+                    thumb.style.transition = 'left 0.3s ease';
+                    fill.style.transition = 'width 0.3s ease';
+                    thumb.style.left = '2px';
+                    fill.style.width = '0';
+                    hint.style.opacity = '1';
+                }
+            }
+
+            thumb.addEventListener('mousedown', onStart);
+            thumb.addEventListener('touchstart', onStart, { passive: true });
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('touchmove', onMove, { passive: true });
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchend', onEnd);
+
+            function saveSubscriber(email) {
+                try {
+                    const list = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+                    if (list.some(s => s.email === email)) return false;
+                    list.push({ email, time: new Date().toISOString() });
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+                    return true;
+                } catch { return false; }
+            }
+
+            const API_URL = '/subscribe.php';
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const input = form.querySelector('input[type="email"]');
+                const email = input.value.trim();
+
+                // 先检查邮箱
+                if (!email) {
+                    input.focus();
+                    input.style.borderColor = 'rgba(239,68,68,0.5)';
+                    setTimeout(() => input.style.borderColor = '', 1500);
+                    return;
+                }
+
+                // 再检查滑块验证
+                if (!verified) {
+                    slider.style.animation = 'shake 0.4s ease';
+                    setTimeout(() => slider.style.animation = '', 500);
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = '提交中...';
+                const isNew = saveSubscriber(email);
+
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+                    btn.classList.add('success');
+                    btn.textContent = data.isNew === false ? '已存在' : '已订阅';
+                } catch (err) {
+                    btn.classList.add('success');
+                    btn.textContent = isNew ? '已订阅' : '已存在';
+                }
+
+                input.disabled = true;
+                msg.classList.add('show');
+                form.style.borderColor = 'rgba(16,185,129,0.2)';
+            });
+        })();
+    </script>
+</body>
+</html>
