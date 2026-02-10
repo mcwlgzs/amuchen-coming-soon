@@ -95,7 +95,7 @@ define('SHOWDOC_PUSH_URL', 'your_url');     // ShowDoc 推送地址（可选）
 
 ## 开源地址
 
-GitHub：https://github.com/你的用户名/amuchen-coming-soon
+GitHub：https://github.com/mcwlgzs/amuchen-coming-soon
 
 觉得不错的话给个 Star 支持一下，有问题欢迎提 Issue。
 

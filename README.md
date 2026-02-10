@@ -44,7 +44,7 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/你的用户名/amuchen-coming-soon.git
+git clone https://github.com/mcwlgzs/amuchen-coming-soon.git
 ```
 
 ### 2. 配置 SMTP
